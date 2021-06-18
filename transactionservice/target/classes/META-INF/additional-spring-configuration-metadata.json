@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "feign.url-account-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-account-service'"
+  },
+  {
+    "name": "feign.url-rule-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-rule-service'"
+  }
+]}

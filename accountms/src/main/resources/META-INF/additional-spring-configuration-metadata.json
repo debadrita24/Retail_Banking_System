@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "feign.url-auth-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-auth-service'"
+  },
+  {
+    "name": "feign.url-customer-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-customer-service'"
+  },
+  {
+    "name": "feign.url-transaction-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-transaction-service'"
+  }
+]}

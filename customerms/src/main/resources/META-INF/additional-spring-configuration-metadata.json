@@ -1,0 +1,22 @@
+{"properties": [
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "spring.jpa.hibernate.hbm2ddl-auto",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.jpa.hibernate.hbm2ddl-auto'"
+  },
+  {
+    "name": "feign.url-auth-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-auth-service'"
+  },
+  {
+    "name": "feign.url-account-service",
+    "type": "java.lang.String",
+    "description": "A description for 'feign.url-account-service'"
+  }
+]}

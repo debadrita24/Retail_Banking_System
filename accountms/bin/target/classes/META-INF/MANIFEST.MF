@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Built-By: SWATI
+Build-Jdk: 11.0.11
+Implementation-Title: accountms
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.cognizant
+Implementation-Vendor: Pivotal Software, Inc.
+Implementation-URL: https://spring.io/projects/spring-boot/accountservic
+ e
+Created-By: Maven Integration for Eclipse
+

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">accountms</a> &gt; <a href="index.source.html" class="el_package">com.cognizant.accountservice.exceptionhandling</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.cognizant.accountservice.exceptionhandling;
+
+import java.net.ConnectException;
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import com.cognizant.accountservice.model.AccountErrorResponse;
+
+import feign.FeignException;
+
+
+@RestControllerAdvice
+<span class="fc" id="L19">public class GlobalExceptionHandler {</span>
+
+	@ExceptionHandler({ AccessDeniedException.class })
+	public ResponseEntity&lt;AccountErrorResponse&gt; handleAccessDeniedException(AccessDeniedException ex) {
+<span class="nc" id="L23">		AccountErrorResponse response = new AccountErrorResponse(LocalDateTime.now() ,HttpStatus.CONFLICT ,ex.getMessage() ,&quot;Access Denied&quot; );</span>
+<span class="nc" id="L24">		return new ResponseEntity&lt;&gt;(response, HttpStatus.CONFLICT);</span>
+	}
+
+	
+	@ExceptionHandler({ AccountNotFoundException.class })
+	public ResponseEntity&lt;AccountErrorResponse&gt; handleAccountNotFoundException(AccountNotFoundException ae) {
+
+<span class="nc" id="L31">		AccountErrorResponse response = new AccountErrorResponse(LocalDateTime.now() ,HttpStatus.NOT_FOUND ,ae.getMessage() , &quot;Account Not Found&quot;);</span>
+<span class="nc" id="L32">		return new ResponseEntity&lt;&gt;(response, HttpStatus.NOT_FOUND);</span>
+	}
+
+
+	@ExceptionHandler(MinimumBalanceException.class)
+	public ResponseEntity&lt;AccountErrorResponse&gt; nullPointer(MinimumBalanceException exception, WebRequest request) {
+<span class="nc" id="L38">		AccountErrorResponse response = new AccountErrorResponse(LocalDateTime.now() ,HttpStatus.NOT_ACCEPTABLE ,exception.getMessage() ,&quot;Access Denied&quot;);</span>
+<span class="nc" id="L39">		return new ResponseEntity&lt;&gt;(response, HttpStatus.NOT_ACCEPTABLE);</span>
+	}
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler({ FeignException.class })
+    public ResponseEntity&lt;AccountErrorResponse&gt; handleFeignException(FeignException ex) {
+<span class="nc" id="L45">        AccountErrorResponse response = new AccountErrorResponse(LocalDateTime.now() ,HttpStatus.INTERNAL_SERVER_ERROR ,ex.getMessage() ,&quot;Server Down Try Later...&quot; );</span>
+<span class="nc" id="L46">        return new ResponseEntity&lt;&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler({ ConnectException.class })
+    public ResponseEntity&lt;AccountErrorResponse&gt; handleConnectException(ConnectException ex) {
+<span class="nc" id="L52">        AccountErrorResponse response = new AccountErrorResponse(LocalDateTime.now() ,HttpStatus.INTERNAL_SERVER_ERROR ,ex.getMessage() ,&quot;Connection Error...&quot; );</span>
+<span class="nc" id="L53">        return new ResponseEntity&lt;&gt;(response, HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

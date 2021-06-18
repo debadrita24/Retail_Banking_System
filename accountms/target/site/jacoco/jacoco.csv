@@ -1,0 +1,16 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+accountms,com.cognizant.accountservice.exceptionhandling,MinimumBalanceException,7,0,0,0,4,0,2,0,2,0
+accountms,com.cognizant.accountservice.exceptionhandling,AccessDeniedException,0,7,0,0,0,4,0,2,0,2
+accountms,com.cognizant.accountservice.exceptionhandling,AccountNotFoundException,0,7,0,0,0,4,0,2,0,2
+accountms,com.cognizant.accountservice.exceptionhandling,GlobalExceptionHandler,75,3,0,0,10,1,5,1,5,1
+accountms,com.cognizant.accountservice,AccountserviceApplication,5,3,0,0,2,1,1,1,1,1
+accountms,com.cognizant.accountservice.controller,AccountController,245,63,3,1,52,13,8,5,6,5
+accountms,com.cognizant.accountservice.service,AccountServiceImpl,22,154,3,5,6,29,4,11,1,10
+accountms,com.cognizant.accountservice.model,CustomerEntity,0,66,0,0,0,9,0,14,0,14
+accountms,com.cognizant.accountservice.model,Account,0,66,0,0,0,9,0,14,0,14
+accountms,com.cognizant.accountservice.model,Transaction,0,86,0,0,0,11,0,18,0,18
+accountms,com.cognizant.accountservice.model,AuthenticationResponse,0,58,0,0,0,7,0,9,0,9
+accountms,com.cognizant.accountservice.model,AccountCreationStatus,0,26,0,0,0,5,0,6,0,6
+accountms,com.cognizant.accountservice.model,TransactionInput,0,46,0,0,0,7,0,10,0,10
+accountms,com.cognizant.accountservice.model,AccountInput,0,26,0,0,0,5,0,6,0,6
+accountms,com.cognizant.accountservice.model,AccountErrorResponse,0,46,0,0,0,7,0,10,0,10

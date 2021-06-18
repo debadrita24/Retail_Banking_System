@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: Debadrita
+Build-Jdk: 15.0.2
+Implementation-Title: authenticationms
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.retailbank
+Implementation-URL: https://spring.io/projects/spring-boot/Authenticatio
+ n-MS
+Created-By: Maven Integration for Eclipse
+

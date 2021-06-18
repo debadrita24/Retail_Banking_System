@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">accountms</a> &gt; <a href="index.source.html" class="el_package">com.cognizant.accountservice.controller</a> &gt; <span class="el_source">AccountController.java</span></div><h1>AccountController.java</h1><pre class="source lang-java linenums">package com.cognizant.accountservice.controller;
+
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cognizant.accountservice.exceptionhandling.MinimumBalanceException;
+import com.cognizant.accountservice.feignclient.TransactionFeign;
+import com.cognizant.accountservice.model.Account;
+import com.cognizant.accountservice.model.AccountCreationStatus;
+import com.cognizant.accountservice.model.AccountInput;
+import com.cognizant.accountservice.model.Transaction;
+import com.cognizant.accountservice.model.TransactionInput;
+import com.cognizant.accountservice.service.AccountServiceImpl;
+
+import lombok.extern.slf4j.Slf4j;
+
+@RestController
+<span class="fc" id="L29">@Slf4j</span>
+<span class="fc" id="L30">public class AccountController {</span>
+
+	@Autowired
+	private AccountServiceImpl accountServiceImpl;
+
+	@Autowired
+	private TransactionFeign transactionFeign; 
+
+
+	
+	@GetMapping(&quot;/getAccount/{accountId}&quot;)
+	public ResponseEntity&lt;Account&gt; getAccount(@RequestHeader(&quot;Authorization&quot;) String token,
+			@PathVariable long accountId) {
+<span class="fc" id="L43">		accountServiceImpl.hasPermission(token);</span>
+<span class="fc" id="L44">		Account accountReturnObject = accountServiceImpl.getAccount(accountId);</span>
+<span class="fc" id="L45">		log.info(&quot;Account Details Returned Sucessfully&quot;);</span>
+<span class="fc" id="L46">		return new ResponseEntity&lt;&gt;(accountReturnObject, HttpStatus.OK);</span>
+	}
+
+	
+	@PostMapping(&quot;/createAccount/{customerId}&quot;)
+	public ResponseEntity&lt;?&gt; createAccount(@RequestHeader(&quot;Authorization&quot;) String token,@PathVariable String customerId, @RequestBody Account account) {
+<span class="fc" id="L52">		accountServiceImpl.hasEmployeePermission(token);</span>
+<span class="fc" id="L53">		AccountCreationStatus returnObjAccountCreationStatus = accountServiceImpl.createAccount(customerId, account);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if (returnObjAccountCreationStatus == null)</span>
+<span class="fc" id="L55">			return new ResponseEntity&lt;&gt;(&quot;Customer Creation Unsucessful&quot;, HttpStatus.NOT_ACCEPTABLE);</span>
+<span class="nc" id="L56">		log.info(&quot;Account Created Sucessfully&quot;);</span>
+<span class="nc" id="L57">		return new ResponseEntity&lt;&gt;(returnObjAccountCreationStatus, HttpStatus.CREATED);</span>
+	}
+
+	
+	
+	@GetMapping(&quot;/getAccounts/{customerId}&quot;)
+	public ResponseEntity&lt;List&lt;Account&gt;&gt; getCustomerAccount(@RequestHeader(&quot;Authorization&quot;) String token,
+			@PathVariable String customerId) {
+<span class="fc" id="L65">		accountServiceImpl.hasPermission(token);</span>
+<span class="fc" id="L66">		log.info(&quot;Account List Returned&quot;);</span>
+<span class="fc" id="L67">		return new ResponseEntity&lt;&gt;(accountServiceImpl.getCustomerAccount(token, customerId), HttpStatus.OK);</span>
+	}
+
+	/**********************************************/
+	@PostMapping(&quot;/deposit&quot;)
+	public ResponseEntity&lt;Account&gt; deposit(@RequestHeader(&quot;Authorization&quot;) String token,
+			@RequestBody AccountInput accInput) {
+<span class="nc" id="L74">		accountServiceImpl.hasPermission(token);</span>
+<span class="nc" id="L75">		transactionFeign.makeDeposit(token, accInput);</span>
+<span class="nc" id="L76">		Account newUpdateAccBal = accountServiceImpl.updateDepositBalance(accInput);</span>
+<span class="nc" id="L77">		List&lt;Transaction&gt; list = transactionFeign.getTransactionsByAccId(token, accInput.getAccountId());</span>
+<span class="nc" id="L78">		newUpdateAccBal.setTransactions(list);</span>
+<span class="nc" id="L79">		log.info(&quot;amount deposited&quot;);</span>
+<span class="nc" id="L80">		return new ResponseEntity&lt;&gt;(newUpdateAccBal, HttpStatus.OK);</span>
+	}
+
+	@PostMapping(&quot;/withdraw&quot;)
+	public ResponseEntity&lt;Account&gt; withdraw(@RequestHeader(&quot;Authorization&quot;) String token,
+			@RequestBody AccountInput accInput) {
+<span class="nc" id="L86">		accountServiceImpl.hasPermission(token);</span>
+		try {
+<span class="nc" id="L88">			transactionFeign.makeWithdraw(token, accInput);</span>
+
+<span class="nc" id="L90">		} catch (Exception e) {</span>
+<span class="nc" id="L91">			throw new MinimumBalanceException(&quot;Minimum Balance 1000 should be maintaind&quot;);</span>
+<span class="nc" id="L92">		}</span>
+<span class="nc" id="L93">		Account newUpdateAccBal = accountServiceImpl.updateBalance(accInput);</span>
+<span class="nc" id="L94">		List&lt;Transaction&gt; list = transactionFeign.getTransactionsByAccId(token, accInput.getAccountId());</span>
+<span class="nc" id="L95">		newUpdateAccBal.setTransactions(list);</span>
+<span class="nc" id="L96">		log.info(&quot;amount withdraw sucessful&quot;);</span>
+<span class="nc" id="L97">		return new ResponseEntity&lt;&gt;(newUpdateAccBal, HttpStatus.OK);</span>
+	}
+	
+/*************************************************************/
+	@PostMapping(&quot;/servicecharge&quot;)
+	public ResponseEntity&lt;Account&gt; servicecharge(@RequestHeader(&quot;Authorization&quot;) String token,
+			@RequestBody AccountInput accInput) {
+<span class="nc" id="L104">		accountServiceImpl.hasPermission(token);</span>
+		try {
+<span class="nc" id="L106">			transactionFeign.makeServiceCharges(token, accInput);</span>
+
+<span class="nc" id="L108">		} catch (Exception e) {</span>
+<span class="nc" id="L109">			throw new MinimumBalanceException(&quot;Minimum Balance 1000 should be maintaind&quot;);</span>
+<span class="nc" id="L110">		}</span>
+<span class="nc" id="L111">		Account newUpdateAccBal = accountServiceImpl.updateBalance(accInput);</span>
+<span class="nc" id="L112">		List&lt;Transaction&gt; list = transactionFeign.getTransactionsByAccId(token, accInput.getAccountId());</span>
+<span class="nc" id="L113">		newUpdateAccBal.setTransactions(list);</span>
+<span class="nc" id="L114">		log.info(&quot;amount service charged sucessful&quot;);</span>
+<span class="nc" id="L115">		return new ResponseEntity&lt;&gt;(newUpdateAccBal, HttpStatus.OK);</span>
+	}
+
+	
+	@PostMapping(&quot;/transaction&quot;)
+	public ResponseEntity&lt;String&gt; transaction(@RequestHeader(&quot;Authorization&quot;) String token,
+			@RequestBody TransactionInput transInput) {
+<span class="nc" id="L122">		accountServiceImpl.hasPermission(token);</span>
+<span class="nc" id="L123">		boolean status = true;</span>
+		try {
+<span class="nc" id="L125">			status = transactionFeign.makeTransfer(token, transInput);</span>
+
+<span class="nc" id="L127">		} catch (Exception e) {</span>
+<span class="nc" id="L128">			throw new MinimumBalanceException(&quot;Minimum Balance 1000 should be maintaind&quot;);</span>
+<span class="nc" id="L129">		}</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		if (status == false) {</span>
+<span class="nc" id="L131">			return new ResponseEntity&lt;&gt;(&quot;Transaction Failed&quot;, HttpStatus.NOT_IMPLEMENTED);</span>
+		}
+<span class="nc" id="L133">		Account updatedSourceAccBal = accountServiceImpl.updateBalance(transInput.getSourceAccount());</span>
+<span class="nc" id="L134">		List&lt;Transaction&gt; sourcelist = transactionFeign.getTransactionsByAccId(token,</span>
+<span class="nc" id="L135">				transInput.getSourceAccount().getAccountId());</span>
+<span class="nc" id="L136">		updatedSourceAccBal.setTransactions(sourcelist);</span>
+
+<span class="nc" id="L138">		Account updatedTargetAccBal = accountServiceImpl.updateDepositBalance(transInput.getTargetAccount());</span>
+<span class="nc" id="L139">		List&lt;Transaction&gt; targetlist = transactionFeign.getTransactionsByAccId(token,transInput.getTargetAccount().getAccountId());</span>
+<span class="nc" id="L140">		updatedTargetAccBal.setTransactions(targetlist);</span>
+<span class="nc" id="L141">		return new ResponseEntity&lt;&gt;(&quot;Transaction Made Successfully From Source AccId&quot; + transInput.getSourceAccount().getAccountId()</span>
+<span class="nc" id="L142">						+ &quot; TO Target AccId &quot; + transInput.getTargetAccount().getAccountId() + &quot; &quot;,HttpStatus.OK);</span>
+	}
+	
+//Checking Balance
+	@PostMapping(&quot;/checkBalance&quot;)
+	public ResponseEntity&lt;Account&gt; checkAccountBalance(@RequestHeader(&quot;Authorization&quot;) String token,
+			@Valid @RequestBody AccountInput accountInput) {
+<span class="nc" id="L149">		accountServiceImpl.hasPermission(token);</span>
+<span class="nc" id="L150">		Account account = accountServiceImpl.getAccount(accountInput.getAccountId());</span>
+<span class="nc" id="L151">		return new ResponseEntity&lt;&gt;(account, HttpStatus.OK);</span>
+	}
+	
+//Finding All Account
+	@GetMapping(&quot;/find&quot;)
+	public ResponseEntity&lt;List&lt;Account&gt;&gt; getAllAccount(@RequestHeader(&quot;Authorization&quot;) String token) {
+<span class="nc" id="L157">		accountServiceImpl.hasPermission(token);</span>
+<span class="nc" id="L158">		List&lt;Account&gt; account = accountServiceImpl.getAllAccounts();</span>
+<span class="nc" id="L159">		return new ResponseEntity&lt;&gt;(account, HttpStatus.OK);</span>
+	}
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
